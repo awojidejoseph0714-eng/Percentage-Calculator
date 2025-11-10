@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Difference Calculator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple fade-in animation for the result */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center p-4 bg-gray-100">
+    <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-xl">
+        
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">
+            Price Change Calculator
+        </h1>
+
+        <!-- Input Fields -->
+        <div class="space-y-4">
+            <div>
+                <label for="originalPrice" class="block text-sm font-medium text-gray-700">
+                    Original Price ($)
+                </label>
+                <input type="number" id="originalPrice" name="originalPrice" placeholder="e.g., 50"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            
+            <div>
+                <label for="newPrice" class="block text-sm font-medium text-gray-700">
+                    New Price ($)
+                </label>
+                <input type="number" id="newPrice" name="newPrice" placeholder="e.g., 75"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div class="mt-8">
+            <button id="calculateBtn" 
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                Calculate
+            </button>
+        </div>
+
+        <!-- Results Area -->
+        <div id="results" class="mt-6 text-center">
+            <!-- Error messages will be injected here -->
+        </div>
+
+    </div>
+
+    <script>
+        const originalPriceInput = document.getElementById('originalPrice');
+        const newPriceInput = document.getElementById('newPrice');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultsDiv = document.getElementById('results');
+
+        calculateBtn.addEventListener('click', () => {
+            // Clear previous results
+            resultsDiv.innerHTML = '';
+            resultsDiv.className = 'mt-6 text-center'; // Reset classes
+
+            const originalPrice = parseFloat(originalPriceInput.value);
+            const newPrice = parseFloat(newPriceInput.value);
+
+            // --- Validation ---
+            if (isNaN(originalPrice) || isNaN(newPrice)) {
+                displayError('Please enter valid numbers for both prices.');
+                return;
+            }
+
+            if (originalPrice <= 0) {
+                displayError('Original price must be greater than zero.');
+                return;
+            }
+
+            // --- Calculation ---
+            const difference = newPrice - originalPrice;
+            const percentageChange = (difference / originalPrice) * 100;
+
+            // --- Display Results ---
+            let resultClass = '';
+            let resultMessage = '';
+
+            if (percentageChange > 0) {
+                resultClass = 'text-green-600';
+                resultMessage = `This is an increase of <strong>${percentageChange.toFixed(2)}%</strong>.`;
+            } else if (percentageChange < 0) {
+                resultClass = 'text-red-600';
+                // Math.abs to show a positive percentage for the decrease
+                resultMessage = `This is a decrease of <strong>${Math.abs(percentageChange).toFixed(2)}%</strong>.`;
+            } else {
+                resultClass = 'text-gray-700';
+                resultMessage = 'There was no change in price.';
+            }
+
+            const formattedDifference = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(difference);
+
+            const resultHTML = `
+                <div class="p-4 bg-gray-50 rounded-lg fade-in">
+                    <p class="text-lg font-medium text-gray-800">
+                        Price Difference: 
+                        <span class="${difference > 0 ? 'text-green-600' : (difference < 0 ? 'text-red-600' : 'text-gray-800')}">
+                            ${formattedDifference}
+                        </span>
+                    </p>
+                    <p class="text-xl font-semibold ${resultClass} mt-2">
+                        ${resultMessage}
+                    </p>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = resultHTML;
+        });
+
+        function displayError(message) {
+            resultsDiv.innerHTML = `<p class="text-red-600 font-medium fade-in">${message}</p>`;
+        }
+
+    </script>
+</body>
+</html>
